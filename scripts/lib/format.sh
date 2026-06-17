@@ -26,11 +26,11 @@ build_wechat_markdown() {
             "---",
             "📦 **项目**：" + fc("info"; .project // "unknown")
         ]
-        + (if (.last_task | present) then
-               ["📋 **任务**：" + fc("comment"; .last_task)]
-           else [] end)
         + (if ((.session_task | present) and (.session_task != .last_task)) then
                ["💬 **Session**：" + fc("comment"; .session_task)]
+           else [] end)
+        + (if (.last_task | present) then
+               ["📋 **任务**：" + fc("comment"; .last_task)]
            else [] end)
         + (if (.elapsed | present) then [elapsed_line] else [] end)
         + (if (note != "") then ["💻 " + fc("comment"; note)] else [] end)
