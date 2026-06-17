@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # agent-notify installer
 # Usage (local):  bash install.sh [WEBHOOK_URL]
-# Usage (remote): bash <(curl -fsSL https://raw.githubusercontent.com/guanmingzhao/agent-notify/main/install.sh) [WEBHOOK_URL]
+# Usage (remote): bash <(curl -fsSL https://raw.githubusercontent.com/yxmg/agent-notify/main/install.sh) [WEBHOOK_URL]
 set -euo pipefail
 
-REPO_RAW="https://raw.githubusercontent.com/guanmingzhao/agent-notify/main"
+REPO_RAW="https://raw.githubusercontent.com/yxmg/agent-notify/main"
 INSTALL_DIR="${AGENT_NOTIFY_DIR:-$HOME/.agent-notify}"
 
 # ── Colors ─────────────────────────────────────────────────────────────────

@@ -7,7 +7,7 @@ Claude Code / Codex 任务完成通知 → 企业微信群机器人。
 ## 安装
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/guanmingzhao/agent-notify/main/install.sh)
+bash <(curl -fsSL https://raw.githubusercontent.com/yxmg/agent-notify/main/install.sh)
 ```
 
 按提示输入企业微信 Webhook URL，完成。
@@ -15,7 +15,7 @@ bash <(curl -fsSL https://raw.githubusercontent.com/guanmingzhao/agent-notify/ma
 也可直接传参：
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/guanmingzhao/agent-notify/main/install.sh) "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=xxx"
+bash <(curl -fsSL https://raw.githubusercontent.com/yxmg/agent-notify/main/install.sh) "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=xxx"
 ```
 
 ## 效果
