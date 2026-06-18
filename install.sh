@@ -19,7 +19,11 @@ if [ -z "$WEBHOOK" ]; then
     echo ""
     echo "🤖  agent-notify — Claude Code / Codex 任务完成通知 → 企业微信"
     echo ""
-    read -rp "企业微信 Webhook URL: " WEBHOOK
+    if [ -t 0 ]; then
+        read -rp "企业微信 Webhook URL: " WEBHOOK
+    else
+        read -rp "企业微信 Webhook URL: " WEBHOOK </dev/tty
+    fi
 fi
 [[ "$WEBHOOK" == https://qyapi.weixin.qq.com/* ]] || die "Invalid webhook URL (must start with https://qyapi.weixin.qq.com/)"
 
