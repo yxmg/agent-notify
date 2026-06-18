@@ -99,6 +99,21 @@ fi
 
 # ── Register Codex hooks ─────────────────────────────────────────────────────
 CODEX_HOOKS="$HOME/.codex/hooks.json"
+CODEX_CONFIG="$HOME/.codex/config.toml"
+if [ -d "$HOME/.codex" ]; then
+    # Enable codex_hooks feature flag if not already set
+    if [ -f "$CODEX_CONFIG" ]; then
+        if ! grep -q "codex_hooks" "$CODEX_CONFIG"; then
+            printf '\n[features]\ncodex_hooks = true\n' >> "$CODEX_CONFIG"
+            ok "Codex: enabled codex_hooks in config.toml"
+        fi
+    else
+        printf '[features]\ncodex_hooks = true\n' > "$CODEX_CONFIG"
+        ok "Codex: created config.toml with codex_hooks = true"
+    fi
+    # Create hooks.json if missing
+    [ -f "$CODEX_HOOKS" ] || echo '{"hooks":{}}' > "$CODEX_HOOKS"
+fi
 if [ -f "$CODEX_HOOKS" ]; then
     python3 - "$CODEX_HOOKS" "$INSTALL_DIR/scripts" <<'PYEOF'
 import json, sys
