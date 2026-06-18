@@ -6,16 +6,16 @@ Claude Code / Codex 任务完成通知 → 企业微信群机器人。
 
 ## 安装
 
+将下面的 `YOUR_WEBHOOK_URL` 替换为企业微信机器人的 Webhook 地址后执行：
+
+**bash / zsh**
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/yxmg/agent-notify/main/install.sh)
+bash <(curl -fsSL https://raw.githubusercontent.com/yxmg/agent-notify/main/install.sh) "YOUR_WEBHOOK_URL"
 ```
 
-按提示输入企业微信 Webhook URL，完成。
-
-也可直接传参：
-
-```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/yxmg/agent-notify/main/install.sh) "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=xxx"
+**fish**
+```fish
+curl -fsSL https://raw.githubusercontent.com/yxmg/agent-notify/main/install.sh | bash -s -- "YOUR_WEBHOOK_URL"
 ```
 
 ## 效果
