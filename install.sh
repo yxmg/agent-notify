@@ -101,15 +101,23 @@ fi
 CODEX_HOOKS="$HOME/.codex/hooks.json"
 CODEX_CONFIG="$HOME/.codex/config.toml"
 if [ -d "$HOME/.codex" ]; then
-    # Enable codex_hooks feature flag if not already set
+    # Enable hooks feature flag (replace deprecated codex_hooks with hooks)
     if [ -f "$CODEX_CONFIG" ]; then
-        if ! grep -q "codex_hooks" "$CODEX_CONFIG"; then
-            printf '\n[features]\ncodex_hooks = true\n' >> "$CODEX_CONFIG"
-            ok "Codex: enabled codex_hooks in config.toml"
+        # Remove deprecated codex_hooks line if present
+        sed -i.bak 's/^codex_hooks = .*/hooks = true/' "$CODEX_CONFIG" && rm -f "${CODEX_CONFIG}.bak"
+        if ! grep -q "^hooks = " "$CODEX_CONFIG"; then
+            # Add under existing [features] section or append new section
+            if grep -q "^\[features\]" "$CODEX_CONFIG"; then
+                sed -i.bak '/^\[features\]/a\
+hooks = true' "$CODEX_CONFIG" && rm -f "${CODEX_CONFIG}.bak"
+            else
+                printf '\n[features]\nhooks = true\n' >> "$CODEX_CONFIG"
+            fi
         fi
+        ok "Codex: enabled hooks in config.toml"
     else
-        printf '[features]\ncodex_hooks = true\n' > "$CODEX_CONFIG"
-        ok "Codex: created config.toml with codex_hooks = true"
+        printf '[features]\nhooks = true\n' > "$CODEX_CONFIG"
+        ok "Codex: created config.toml with hooks = true"
     fi
     # Create hooks.json if missing
     [ -f "$CODEX_HOOKS" ] || echo '{"hooks":{}}' > "$CODEX_HOOKS"
@@ -151,5 +159,15 @@ echo ""
 ok "agent-notify installed!"
 echo ""
 echo "  Config:  $INSTALL_DIR/config.json"
-echo "  Test:    echo '{\"session_id\":\"t\",\"cwd\":\"$(pwd)\",\"last_assistant_message\":\"done\",\"hook_event_name\":\"Stop\"}' | $INSTALL_DIR/scripts/notify.sh stop"
+echo ""
+echo "─────────────────────────────────────────────"
+echo "  后续步骤："
+echo ""
+if [ -f "$CLAUDE_SETTINGS" ]; then
+    echo "  Claude Code：重启应用使 hooks 生效"
+fi
+if [ -d "$HOME/.codex" ]; then
+    echo "  Codex：启动时在提示框中点击「Trust」信任自定义钩子"
+fi
+echo "─────────────────────────────────────────────"
 echo ""
