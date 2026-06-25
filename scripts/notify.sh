@@ -175,7 +175,42 @@ PYEOF
         ;;
 esac
 
-# Pending mechanism: cancel if user interacts within delay
+build_event_json() {
+    jq -n \
+        --arg agent        "$AGENT" \
+        --arg status_label "$STATUS_LABEL" \
+        --arg status_color "$STATUS_COLOR" \
+        --arg summary      "$SUMMARY" \
+        --arg project      "$PROJECT" \
+        --arg session_task "$SESSION_TASK" \
+        --arg last_task    "$LAST_TASK" \
+        --arg elapsed      "$ELAPSED" \
+        --arg t_start      "$T_START" \
+        --arg t_end        "$T_END" \
+        --arg model        "$MODEL" \
+        --arg hostname     "$HOSTNAME_SHORT" \
+        '{agent:$agent, status_label:$status_label, status_color:$status_color,
+          summary:$summary, project:$project, session_task:$session_task,
+          last_task:$last_task, elapsed:$elapsed, t_start:$t_start, t_end:$t_end,
+          model:$model, hostname:$hostname}'
+}
+
+send_now() {
+    local content
+    content=$(build_wechat_markdown "$(build_event_json)")
+    curl -sf --max-time 10 \
+        -H "Content-Type: application/json" \
+        -d "$(jq -n --arg c "$content" '{msgtype:"markdown",markdown:{content:$c}}')" \
+        "$WEBHOOK" >/dev/null 2>&1 || true
+}
+
+# notification: send immediately (pending would be cleared by PreToolUse when user approves)
+if [ "$EVENT_TYPE" = "notification" ]; then
+    send_now
+    exit 0
+fi
+
+# stop: delay + pending mechanism (cancel if user continues working within delay)
 DELAY=$(jq -r '.delay // 5' "$CONFIG" 2>/dev/null || echo "5")
 rm -f "$STATE_DIR"/pending_* 2>/dev/null || true
 PENDING="$STATE_DIR/pending_${SESSION_ID}_${NOW}_$$"
@@ -184,32 +219,7 @@ echo "$EVENT_TYPE" > "$PENDING"
 (
     sleep "$DELAY"
     [ -f "$PENDING" ] || exit 0
-
-    EVENT_JSON=$(jq -n \
-        --arg agent       "$AGENT" \
-        --arg status_label "$STATUS_LABEL" \
-        --arg status_color "$STATUS_COLOR" \
-        --arg summary     "$SUMMARY" \
-        --arg project     "$PROJECT" \
-        --arg session_task "$SESSION_TASK" \
-        --arg last_task   "$LAST_TASK" \
-        --arg elapsed     "$ELAPSED" \
-        --arg t_start     "$T_START" \
-        --arg t_end       "$T_END" \
-        --arg model       "$MODEL" \
-        --arg hostname    "$HOSTNAME_SHORT" \
-        '{agent:$agent, status_label:$status_label, status_color:$status_color,
-          summary:$summary, project:$project, session_task:$session_task,
-          last_task:$last_task, elapsed:$elapsed, t_start:$t_start, t_end:$t_end,
-          model:$model, hostname:$hostname}')
-
-    CONTENT=$(build_wechat_markdown "$EVENT_JSON")
-
-    curl -sf --max-time 10 \
-        -H "Content-Type: application/json" \
-        -d "$(jq -n --arg c "$CONTENT" '{msgtype:"markdown",markdown:{content:$c}}')" \
-        "$WEBHOOK" >/dev/null 2>&1 || true
-
+    send_now
     rm -f "$PENDING"
 ) </dev/null >/dev/null 2>&1 &
 disown
